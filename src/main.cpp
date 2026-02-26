@@ -249,13 +249,15 @@ void handlePhysicalKey()
         if (currentLockReading != lockState) {
             lockState = currentLockReading;
             if (lockState) {
+                
                 if (gKeyCommandProcessed) {
                     gLastKeyCommand      = KEY_LOCK;
                     gKeyCommandProcessed = false;
                     Serial.println("KEY||LOCK");
+                    delay(20);
                     Serial.flush();
                 }
-            }
+            } 
         }
     }
     lastLockReading = currentLockReading;
@@ -273,9 +275,11 @@ void handlePhysicalKey()
                     gLastKeyCommand      = KEY_UNLOCK;
                     gKeyCommandProcessed = false;
                     Serial.println("KEY||UNLOCK");
+                    delay(20);
                     Serial.flush();
                 }
-            }
+            } 
+            
         }
     }
     lastUnlockReading = currentUnlockReading;
@@ -295,6 +299,7 @@ void handleKeyAction()
                     gIgnState = IGN_ACC;
                     setIgnStateToCan(IGN_ACC);
                     Serial.println("IGN||ACC");
+                    delay(20);
                     Serial.flush();
                 }
                 break;
@@ -308,9 +313,11 @@ void handleKeyAction()
                     // Auto shift to Gear P when locking
                     txTasks[TX_VCU_HV_DRVSYS_STATUS].canMess.data[4] = 0x00;  // Gear P
                     gGearMapped = 0x00;
+                    delay(10);
                     Serial.println("GEAR||P");
                     delay(20);
                     Serial.println("IGN||OFF");
+                    delay(20);
                     Serial.flush();
                 }
                 break;
@@ -326,6 +333,7 @@ void handleKeyAction()
         gIgnState = IGN_ON;
         setIgnStateToCan(IGN_ON);
         Serial.println("IGN||ON");
+        delay(20);
         Serial.flush();
     }
 }
@@ -348,18 +356,22 @@ void handleCanRx()
                     switch (gearRaw) {
                         case 0x00:
                             Serial.println("GEAR||P");
+                            delay(10);
                             gearMapped = 00;
                             break;
                         case 0x20:
                             Serial.println("GEAR||R");
+                            delay(10);
                             gearMapped = 01;
                             break;
                         case 0x40:
                             Serial.println("GEAR||N");
+                            delay(10);
                             gearMapped = 02;
                             break;
                         case 0x60:
                             Serial.println("GEAR||D");
+                            delay(10);
                             gearMapped = 03;
                             break;
                         default:
@@ -519,32 +531,12 @@ class CmdWriteCallbacks : public BLECharacteristicCallbacks {
                 Serial.println("KEY||UNLOCK");
                 delay(20);
                 break;
-
-            // ── Key vật lý (giữ tương thích) ────────────────
-            case 1:  // KEY: LOCK → tắt nguồn
-                gLastKeyCommand      = KEY_LOCK;
-                gKeyCommandProcessed = false;
-                // Serial.println("[BLE] CMD: KEY LOCK (1) → KEY_LOCK");
-                Serial.println("KEY||LOCK");
-                break;
-            case 2:  // KEY: UNLOCK → bật ACC
-                gLastKeyCommand      = KEY_UNLOCK;
-                gKeyCommandProcessed = false;
-                // Serial.println("[BLE] CMD: KEY UNLOCK (2) → KEY_UNLOCK");
-                Serial.println("KEY||UNLOCK");
-                break;
-            case 3:  // KEY: TRUNK → mở cốp
-                gLastKeyCommand      = KEY_TRUNK;
-                gKeyCommandProcessed = false;
-                // Serial.println("[BLE] CMD: KEY TRUNK (3)");
-                Serial.println("KEY||TRUNK");
-                break;
-
             default:
                 Serial.print("[BLE] UNKNOWN CMD: ");
                 Serial.println(cmd);
                 break;
         }
+        delay(10);
         Serial.flush();
     }
 };
